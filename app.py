@@ -9,17 +9,12 @@ from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfbase import pdfmetrics
 from reportlab.platypus import (
     Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle, KeepTogether
 )
 
 st.set_page_config(page_title="Shreekara Donation Receipt", page_icon="🧾", layout="centered")
 
-# Unicode-capable fonts for the Indian rupee symbol in generated PDFs.
-pdfmetrics.registerFont(TTFont("NotoSans", "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf"))
-pdfmetrics.registerFont(TTFont("NotoSans-Bold", "/usr/share/fonts/truetype/noto/NotoSans-Bold.ttf"))
 
 # ---------- Helpers ----------
 ONES = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
@@ -91,14 +86,14 @@ def pdf_receipt(data: dict) -> bytes:
     styles = getSampleStyleSheet()
     title_style = ParagraphStyle(
         "FoundationTitle", parent=styles["Title"], alignment=TA_CENTER,
-        fontName="NotoSans-Bold", fontSize=16, leading=20, spaceAfter=4
+        fontName="Helvetica-Bold", fontSize=16, leading=20, spaceAfter=4
     )
     subtitle_style = ParagraphStyle(
         "Subtitle", parent=styles["Heading2"], alignment=TA_CENTER,
-        fontName="NotoSans-Bold", fontSize=12, leading=15, spaceAfter=10
+        fontName="Helvetica-Bold", fontSize=12, leading=15, spaceAfter=10
     )
     body = ParagraphStyle(
-        "Body", parent=styles["BodyText"], fontName="NotoSans",
+        "Body", parent=styles["BodyText"], fontName="Helvetica",
         fontSize=9.5, leading=13, alignment=TA_LEFT
     )
     small = ParagraphStyle(
@@ -137,7 +132,7 @@ def pdf_receipt(data: dict) -> bytes:
         ["Received with thanks from", data["donor_name"]],
         ["Address", data.get("address") or "-"],
         ["PAN / Identification No.", data.get("donor_pan") or "-"],
-        ["Amount", f"₹ {data['amount']:,.2f}"],
+        ["Amount", f"INR {data['amount']:,.2f}"],
         ["Amount in words", amount_in_words_indian(data["amount"])],
         ["Mode of payment", data["payment_mode"]],
         ["Transaction / Cheque reference", data.get("transaction_ref") or "-"],
@@ -252,7 +247,7 @@ donor_pan = st.text_input("PAN / Identification number")
 st.subheader("Donation details")
 col3, col4 = st.columns(2)
 with col3:
-    amount = st.number_input("Amount (₹) *", min_value=0.0, step=100.0, format="%.2f")
+    amount = st.number_input("Amount (INR) *", min_value=0.0, step=100.0, format="%.2f")
     payment_mode = st.selectbox("Payment mode *", ["UPI", "NEFT", "RTGS", "Cheque", "Cash", "Other"])
 with col4:
     payment_date = st.date_input("Payment date *", value=date.today())
